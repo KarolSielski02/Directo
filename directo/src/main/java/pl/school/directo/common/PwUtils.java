@@ -2,27 +2,22 @@ package pl.school.directo.common;
 
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import java.util.Arrays;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+
 
 @Component
 public class PwUtils {
 
-    public String hashPw(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    static Pbkdf2PasswordEncoder pdkdf2PasswordEncoder = new Pbkdf2PasswordEncoder("tooth", 16, 310000, 128);
 
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-
-        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        byte[] hash = factory.generateSecret(spec).getEncoded();
-
-        return Arrays.toString(hash);
+    public static String hashPw(String password){
+        return (pdkdf2PasswordEncoder.encode(password));
+    }
+    public static boolean matchPW(String rawPW, String hashedPW){
+        if (pdkdf2PasswordEncoder.matches(rawPW, hashedPW)){
+            return true; //success
+        }else {
+            return false; //failure
+        }
     }
 }
