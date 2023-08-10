@@ -33,4 +33,35 @@ public interface UserRepository extends JpaRepository<Tbl_user, Integer> {
     @Modifying
     @Query(value = "UPDATE tbl_user SET login =?1, tbl_access_access_class=?2 where login =?3", nativeQuery = true)
     void modifyUser(String newLogin, String tbl_access_access_class, String oldLogin);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE tbl_user SET password = ?2 where login =?1", nativeQuery = true)
+    void changePW(String login, String password);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM tbl_user WHERE login = ?1", nativeQuery = true)
+    void removeUser(String login);
+
+    @Query(value = "SELECT unsuc_logins FROM tbl_user WHERE login = ?1", nativeQuery = true)
+    Integer getUnsucLogs(String login);
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE tbl_user SET unsuc_logins = ?2 WHERE login = ?1", nativeQuery = true)
+    void increaseUnsucLogs(String login, int num);
+
+    @Query(value = "SELECT blocked FROM tbl_user WHERE login = ?1", nativeQuery = true)
+    Boolean getIsBlocked(String login);
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE tbl_user SET blocked = 1 WHERE login = ?1", nativeQuery = true)
+    void getBlocked(String login);
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE tbl_user SET blocked = 0, unsuc_logins = 0 WHERE login = ?1", nativeQuery = true)
+    void getUnBlocked(String login);
+
+    @Query(value = "SELECT * FROM Tbl_user where login = ?1", nativeQuery = true)
+    Tbl_user getUser(String login);
 }

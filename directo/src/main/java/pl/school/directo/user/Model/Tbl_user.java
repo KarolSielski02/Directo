@@ -17,12 +17,16 @@ public class Tbl_user {
     @Column(name = "unsuc_logins")
     private int unsuc_logins;
 
-    public Tbl_user(int id, String login, String password, String tbl_access_access_class, int unsuc_logins) {
+    @Column(name = "blocked")
+    private Boolean blocked;
+
+    public Tbl_user(int id, String login, String password, String tbl_access_access_class, int unsuc_logins, Boolean blocked) {
         this.id = id;
         this.login = login;
         this.password = password;
         this.tbl_access_access_class = tbl_access_access_class;
         this.unsuc_logins = unsuc_logins;
+        this.blocked = blocked;
     }
 
     public Tbl_user() {
@@ -48,14 +52,19 @@ public class Tbl_user {
         return unsuc_logins;
     }
 
+    public Boolean isBlocked() {
+        return blocked;
+    }
+
     @Override
     public String toString() {
-        return "tbl_user{" +
+        return "Tbl_user{" +
                 "id=" + id +
                 ", login='" + login + '\'' +
                 ", password='" + password + '\'' +
                 ", tbl_access_access_class='" + tbl_access_access_class + '\'' +
-                ", unsuc_logins='" + unsuc_logins + '\'' +
+                ", unsuc_logins=" + unsuc_logins +
+                ", blocked=" + blocked +
                 '}';
     }
 }

@@ -1,6 +1,7 @@
 package pl.school.directo.user.Service;
 
 import org.springframework.stereotype.Service;
+import pl.school.directo.access.Repository.AccessRepository;
 import pl.school.directo.user.Model.Tbl_user;
 import pl.school.directo.user.Repository.UserRepository;
 
@@ -13,13 +14,15 @@ import static pl.school.directo.common.PwUtils.*;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final AccessRepository accessRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, AccessRepository accessRepository) {
         this.userRepository = userRepository;
+        this.accessRepository = accessRepository;
     }
 
     public int createNewUser(Tbl_user tblUser) {
-        if (!isLoginExists(tblUser.getLogin())){
+        if (!isLoginExists(tblUser.getLogin()) && accessRepository.getIDs().contains(tblUser.getTbl_access_access_class())){
             userRepository.createUser(tblUser.getLogin(),
                     hashPw(tblUser.getPassword()),
                     tblUser.getTbl_access_access_class());
@@ -32,15 +35,24 @@ public class UserService {
 
     public int login(String login, String rawPW){
         if (isLoginExists(login)) {
-            if (matchPW(rawPW, userRepository.getPW(login))) {
-                return 0;
+            if (!userRepository.getIsBlocked(login)) {
+                if (matchPW(rawPW, userRepository.getPW(login))) {
+                    return 0; // 0 = success
+                } else {
+                    int num = userRepository.getUnsucLogs(login) + 1;
+                    userRepository.increaseUnsucLogs(login, num);
+                    if (num >= 5){
+                        userRepository.getBlocked(login);
+                    }
+                    return 2; // 2 = wrong login or PW (here wrong PW)
+                }
             } else {
-                return 2;
+                return 3; // 3 = user blocked
             }
         } else if(!isLoginExists(login)){
-            return 2;
+            return 2; //2 = wrong login or PW (here non-existing email)
         }
-        return 1;
+        return 1; //3 = error within method
     }
 
     public boolean isLoginExists(String login){
@@ -61,5 +73,43 @@ public class UserService {
             return 2;
         }
         return 1;
+    }
+
+    public int changePW(String login, String rawPW) {
+        if (isLoginExists(login)) {
+            userRepository.changePW(login, hashPw(rawPW));
+            return 0;
+        } else if(!isLoginExists(login)){
+            return 2;
+        }
+        return 1;
+    }
+
+    public int removeUser(String login) {
+        if (isLoginExists(login)) {
+            userRepository.removeUser(login);
+            return 0;
+        } else if(!isLoginExists(login)){
+            return 2;
+        }
+        return 1;
+    }
+
+    public int unblockUser(String login) {
+        if (isLoginExists(login)) {
+            userRepository.getUnBlocked(login);
+            return 0;
+        } else if(!isLoginExists(login)){
+            return 2;
+        }
+        return 1;
+    }
+
+    public Tbl_user getUser(String login) {
+        if (isLoginExists(login)){
+            return userRepository.getUser(login);
+        } else  {
+            return null;
+        }
     }
 }

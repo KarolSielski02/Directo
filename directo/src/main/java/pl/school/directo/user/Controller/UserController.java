@@ -22,9 +22,10 @@ public class UserController {
     public ResponseEntity<Integer> createUser(@RequestBody Tbl_user tblUser) {
         try {
             if (areAnyFieldsNull(tblUser)) {
-                if (userService.createNewUser(tblUser) == 0) {
+                int num = userService.createNewUser(tblUser);
+                if (num == 0) {
                     return ResponseEntity.status(HttpStatus.CREATED).body(0); // 0 means success(inserted into db)
-                } else if (userService.createNewUser(tblUser) == 2) {
+                } else if (num == 2) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(2); // 2 means login already exists
                 }
             }
@@ -34,25 +35,29 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);
     }
 
-    @GetMapping("/login")
-    public ResponseEntity<Integer> login(@RequestParam String login, @RequestParam String rawPW) { //alternatively change to @PathVariable
+    @GetMapping("/login/{login}/{rawPW}")
+    public ResponseEntity<Integer> login(@PathVariable String login, @PathVariable String rawPW) {
         if (login != null && rawPW != null) {
-            if (userService.login(login, rawPW) == 0) {
+            int res = userService.login(login, rawPW);
+            if (res == 0) { // 0 = success
                 return ResponseEntity.status(HttpStatus.OK).body(0);
-            } else if (userService.login(login, rawPW) == 2) {
+            } else if (res == 2){ //2 = wrong login or PW
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(2);
+            } else if (res == 3) { // 3 = user blocked
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(3);
             }
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);  //1 = error within method
     }
 
     @PutMapping("/modifyUser/{login}")
     public ResponseEntity<Integer> modifyAccessClass(@RequestBody Tbl_user tblUser, @PathVariable String login) {
         try {
             if (areAnyFieldsNull(tblUser)) {
-                if (userService.modifyUser(tblUser, login) == 0) { // 0 means success(inserted to db)
+                int num = userService.modifyUser(tblUser, login);
+                if (num == 0) { // 0 means success(inserted to db)
                     return ResponseEntity.status(HttpStatus.OK).body(0);
-                } else if (userService.modifyUser(tblUser, login) == 2) {
+                } else if (num == 2) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(2); //  2 means that ID already exists(not inserted to db)
                 }
             }
@@ -62,5 +67,56 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);
     }
 
-    //TODO add Password change, Delete User, GetUserByLogin and maybe other things
+    @PutMapping("/changePassword/{login}/{rawPW}")
+    public ResponseEntity<Integer> changePassword(@PathVariable String login, @PathVariable String rawPW){
+        if (login != null && rawPW != null) {
+            int num = userService.changePW(login, rawPW);
+            if (num == 0) {
+                return ResponseEntity.status(HttpStatus.OK).body(0);
+            } else if (num == 2) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(2);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);
+    }
+
+    @DeleteMapping("/removeUser/{login}")
+    public ResponseEntity<Integer> removeUser(@PathVariable String login){
+        if (login != null) {
+            int num = userService.removeUser(login);
+            if (num == 0) {
+                return ResponseEntity.status(HttpStatus.OK).body(0);
+            } else if (num == 2) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(2);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);
+    }
+
+    @PutMapping("/unblockUser/{login}")
+    public ResponseEntity<Integer> getUnblocked(@PathVariable String login){
+        if (login != null)  {
+            int num = userService.unblockUser(login);
+            if (num == 0) {
+                return ResponseEntity.status(HttpStatus.OK).body(0);
+            } else if (num == 2) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(2);
+            }
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);
+    }
+
+    @GetMapping("/GetUserByLogin/{login}")
+    private ResponseEntity<Tbl_user> getUserByLogin(@PathVariable String login){
+        if (login != null)  {
+            Tbl_user user = userService.getUser(login);
+            if (user != null) {
+                return ResponseEntity.status(HttpStatus.OK).body(user); // Success
+            }
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Tbl_user()); //Bad Request
+    }
 }
+
+    //TODO all prob done for now
+
