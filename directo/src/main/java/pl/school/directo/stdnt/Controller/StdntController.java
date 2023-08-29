@@ -36,7 +36,7 @@ public class StdntController {
     }
 
     @PutMapping("/modifyUser/{pesel}")
-    public ResponseEntity <Integer> modifyStdnt(@RequestBody Tbl_stdnt tblStdnt, @PathVariable String pesel){
+    public ResponseEntity <Integer> modifyStdnt(@RequestBody Tbl_stdnt tblStdnt, @PathVariable int pesel){
         try {
             if (areAnyFieldsNull(tblStdnt)) {
                 int num = stdntService.modifyStdnt(tblStdnt, pesel);

@@ -36,10 +36,14 @@ public interface AccessRepository extends JpaRepository<Tbl_access, String> {
     @Transactional
     @Modifying
     @Query(value = "UPDATE tbl_access SET access_class = ?1, can_crud_users = ?2, can_add_students = ?3, can_grade_students = ?4, can_export_to_pdf = ?5, can_clear_grades = ?6, can_modify_access_class = ?7 WHERE access_class = ?8", nativeQuery = true)
-    void modifyAccessClass(String accessClass, boolean canCrudUsers, boolean canAddStudents, boolean canGradeStudents, boolean canExportToPdf, boolean canClearGrades, boolean canModifyAccessClass, String id);
+    void modifyAccessClassId(String accessClass, boolean canCrudUsers, boolean canAddStudents, boolean canGradeStudents, boolean canExportToPdf, boolean canClearGrades, boolean canModifyAccessClass, String id);
 
+    @Modifying
+    @Query(value = "UPDATE tbl_access SET can_crud_users = ?1, can_add_students = ?2, can_grade_students = ?3, can_export_to_pdf = ?4, can_clear_grades = ?5, can_modify_access_class = ?6 WHERE access_class = ?8", nativeQuery = true)
+    void modifyAccessClassNoId(boolean canCrudUsers, boolean canAddStudents, boolean canGradeStudents, boolean canExportToPdf, boolean canClearGrades, Boolean canModifyAccessClass, String id);
     @Transactional
     @Modifying
     @Query(value = "DELETE FROM tbl_access WHERE access_class = ?1", nativeQuery = true)
     void removeAccessClass(String id);
+
 }

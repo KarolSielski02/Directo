@@ -32,7 +32,12 @@ public interface UserRepository extends JpaRepository<Tbl_user, Integer> {
     @Transactional
     @Modifying
     @Query(value = "UPDATE tbl_user SET login =?1, tbl_access_access_class=?2 where login =?3", nativeQuery = true)
-    void modifyUser(String newLogin, String tbl_access_access_class, String oldLogin);
+    void modifyUserLogin(String newLogin, String tbl_access_access_class, String oldLogin);
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE tbl_user SET tbl_access_access_class=?2 where login =?1", nativeQuery = true)
+    void modifyUserNoLogin(String Login, String tbl_access_access_class);
 
     @Transactional
     @Modifying

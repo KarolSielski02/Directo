@@ -66,13 +66,24 @@ public class UserService {
     }
 
     public int modifyUser(Tbl_user tblUser, String login) {
-        if (isLoginExists(login)){
-            userRepository.modifyUser(tblUser.getLogin(), tblUser.getTbl_access_access_class(), login);
-            return 0;
-        } else if (!isLoginExists(login)) {
-            return 2;
+        boolean newLoginExists = isLoginExists(tblUser.getLogin());
+        boolean currentLoginExists = isLoginExists(login);
+
+        if (!Objects.equals(tblUser.getLogin(), login)) {
+            if (currentLoginExists && !newLoginExists) {
+                userRepository.modifyUserLogin(tblUser.getLogin(), tblUser.getTbl_access_access_class(), login);
+                return 0;
+            } else {
+                return 2;
+            }
+        } else {
+            if (currentLoginExists) {
+                userRepository.modifyUserNoLogin(login, tblUser.getTbl_access_access_class());
+                return 0;
+            } else {
+                return 2;
+            }
         }
-        return 1;
     }
 
     public int changePW(String login, String rawPW) {

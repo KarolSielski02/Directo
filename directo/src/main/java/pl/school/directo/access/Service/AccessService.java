@@ -49,18 +49,34 @@ public class AccessService {
     }
 
     public int modifyAccessClass(Tbl_access tblAccess, String id) {
-        if (isIdExists(id)){
-            accessRepository.modifyAccessClass(tblAccess.getAccess_class(),
-                    tblAccess.getCan_crud_users(),
-                    tblAccess.getCan_add_students(),
-                    tblAccess.getCan_grade_students(),
-                    tblAccess.getCan_export_to_pdf(),
-                    tblAccess.getCan_clear_grades(),
-                    tblAccess.getCan_modify_access_class(),
-                    id);
-            return 0;
-        }else if (!isIdExists(id)){
-            return 2;
+        if (!Objects.equals(tblAccess.getAccess_class(), id)){
+            if (isIdExists(id) && !isIdExists(tblAccess.getAccess_class())){
+                accessRepository.modifyAccessClassId(tblAccess.getAccess_class(),
+                        tblAccess.getCan_crud_users(),
+                        tblAccess.getCan_add_students(),
+                        tblAccess.getCan_grade_students(),
+                        tblAccess.getCan_export_to_pdf(),
+                        tblAccess.getCan_clear_grades(),
+                        tblAccess.getCan_modify_access_class(),
+                        id);
+                return 0;
+            }else if (!isIdExists(id)){
+                return 2;
+            }
+        }else {
+            if (isIdExists(id)){
+                accessRepository.modifyAccessClassNoId(
+                        tblAccess.getCan_crud_users(),
+                        tblAccess.getCan_add_students(),
+                        tblAccess.getCan_grade_students(),
+                        tblAccess.getCan_export_to_pdf(),
+                        tblAccess.getCan_clear_grades(),
+                        tblAccess.getCan_modify_access_class(),
+                        id);
+                return 0;
+            }else if (!isIdExists(id)){
+                return 2;
+            }
         }
         return 1;
     }

@@ -41,4 +41,25 @@ public class StdntService {
         }
         return false;
     }
+
+    public int modifyStdnt(Tbl_stdnt tblStdnt, int pesel) {
+        boolean newPeselExists = isPeselExists(tblStdnt.getPesel());
+        boolean currentPeselExists = isPeselExists(pesel);
+
+        if (tblStdnt.getPesel() != pesel) {
+            if (currentPeselExists && !newPeselExists) {
+                stdntRepository.modifyStdnt(tblStdnt.getPesel(), tblStdnt.getClassName(), pesel);
+                return 0;
+            } else  {
+                return 2;
+            }
+        } else {
+            if (currentPeselExists) {
+                stdntRepository.modifyStdntNoPesel(pesel, tblStdnt.getClassName());
+                return 0;
+            } else{
+                return 2;
+            }
+        }
+    }
 }
