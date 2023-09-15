@@ -9,11 +9,11 @@ public class Tbl_stdnt {
 
     @Id
     @Column(name = "pesel")
-    private int pesel; //max size 11
+    private String pesel; //max size 11
     @Column(name = "tbl_class_class_name")
     private String className;
 
-    public Tbl_stdnt(int id, String className) {
+    public Tbl_stdnt(String id, String className) {
         this.pesel = id;
         this.className = className;
     }
@@ -21,7 +21,7 @@ public class Tbl_stdnt {
     public Tbl_stdnt() {
     }
 
-    public int getPesel() {
+    public String getPesel() {
         return pesel;
     }
 
