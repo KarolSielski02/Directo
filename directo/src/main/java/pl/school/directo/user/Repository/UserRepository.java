@@ -69,4 +69,7 @@ public interface UserRepository extends JpaRepository<Tbl_user, Integer> {
 
     @Query(value = "SELECT * FROM Tbl_user where login = ?1", nativeQuery = true)
     Tbl_user getUser(String login);
+
+    @Query(value = "SELECT login FROM Tbl_user where login = ?1", nativeQuery = true)
+    String checkIfUserExistsOnlyLogin(String login);
 }

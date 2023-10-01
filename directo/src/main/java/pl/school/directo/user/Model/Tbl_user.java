@@ -5,9 +5,6 @@ import jakarta.persistence.*;
 public class Tbl_user {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
     @Column(name = "login")
     private String login;
     @Column(name = "password")
@@ -20,8 +17,7 @@ public class Tbl_user {
     @Column(name = "blocked")
     private Boolean blocked;
 
-    public Tbl_user(int id, String login, String password, String tbl_access_access_class, int unsuc_logins, Boolean blocked) {
-        this.id = id;
+    public Tbl_user(String login, String password, String tbl_access_access_class, int unsuc_logins, Boolean blocked) {
         this.login = login;
         this.password = password;
         this.tbl_access_access_class = tbl_access_access_class;
@@ -31,11 +27,6 @@ public class Tbl_user {
 
     public Tbl_user() {
     }
-
-    public int getId() {
-        return id;
-    }
-
     public String getLogin() {
         return login;
     }
@@ -59,8 +50,7 @@ public class Tbl_user {
     @Override
     public String toString() {
         return "Tbl_user{" +
-                "id=" + id +
-                ", login='" + login + '\'' +
+                "login='" + login + '\'' +
                 ", password='" + password + '\'' +
                 ", tbl_access_access_class='" + tbl_access_access_class + '\'' +
                 ", unsuc_logins=" + unsuc_logins +

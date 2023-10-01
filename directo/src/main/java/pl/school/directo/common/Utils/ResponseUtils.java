@@ -1,12 +1,14 @@
-package pl.school.directo.common;
+package pl.school.directo.common.Utils;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import pl.school.directo.common.Enums.ResponseCodeEnums;
 
 @Component
-public class StatusUtils {
-    public static HttpStatus mapHttpStatus(ResponseCode responseCode) {
-        switch (responseCode) {
+public class ResponseUtils {
+    public static HttpStatus mapHttpStatus(ResponseCodeEnums responseCodeEnums) {
+        switch (responseCodeEnums) {
             case SUCCESS_CREATED:
                 return HttpStatus.CREATED;
             case SUCCESS_MODIFIED:
@@ -27,8 +29,20 @@ public class StatusUtils {
                 return HttpStatus.BAD_REQUEST;
             case FAILED_CREATION:
                 return HttpStatus.BAD_REQUEST;
+            case SUCCESS_LOGIN:
+                return HttpStatus.OK;
+            case FAILED_LOGIN:
+                return HttpStatus.BAD_REQUEST;
+            case METHOD_ERROR:
+                return HttpStatus.BAD_REQUEST;
+            case BLOCKED:
+                return HttpStatus.BAD_REQUEST;
             default:
                 return HttpStatus.BAD_REQUEST;
         }
+    }
+
+    public static ResponseEntity<String> generateResponseEntity(ResponseCodeEnums responseCodeEnum){
+        return ResponseEntity.status(ResponseUtils.mapHttpStatus(responseCodeEnum)).body(responseCodeEnum.name());
     }
 }

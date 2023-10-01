@@ -31,4 +31,7 @@ public interface ClassRepository extends JpaRepository<Tbl_class, String> {
     @Modifying
     @Query(value = "DELETE FROM tbl_class WHERE class_name = ?1", nativeQuery = true)
     void removeClass(String className);
+
+    @Query(value = "SELECT * FROM tbl_class WHERE class_name = ?1", nativeQuery = true)
+    String getClassById(String id);
 }

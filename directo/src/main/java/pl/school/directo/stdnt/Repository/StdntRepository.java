@@ -21,6 +21,9 @@ public interface StdntRepository extends JpaRepository<Tbl_stdnt, Integer> {
     @Query(value = "SELECT pesel FROM tbl_stdnt", nativeQuery = true)
     List<String> getStdnts();
 
+    @Query(value = "SELECT * FROM tbl_stdnt WHERE pesel = ?1", nativeQuery = true)
+    String getStdntByPesel(String pesel);
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE tbl_stdnt SET pesel = ?1, tbl_class_class_name = ?2 where pesel = ?3", nativeQuery = true)

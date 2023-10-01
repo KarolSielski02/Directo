@@ -1,4 +1,4 @@
-package pl.school.directo.common;
+package pl.school.directo.common.Utils;
 
 import org.springframework.stereotype.Component;
 

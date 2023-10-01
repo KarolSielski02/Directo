@@ -2,13 +2,14 @@ package pl.school.directo.user.Service;
 
 import org.springframework.stereotype.Service;
 import pl.school.directo.access.Repository.AccessRepository;
+import pl.school.directo.common.Enums.ResponseCodeEnums;
 import pl.school.directo.user.Model.Tbl_user;
 import pl.school.directo.user.Repository.UserRepository;
 
 import java.util.List;
 import java.util.Objects;
 
-import static pl.school.directo.common.PwUtils.*;
+import static pl.school.directo.common.Utils.PwUtils.*;
 
 @Service
 public class UserService {
@@ -21,38 +22,41 @@ public class UserService {
         this.accessRepository = accessRepository;
     }
 
-    public int createNewUser(Tbl_user tblUser) {
-        if (!isLoginExists(tblUser.getLogin()) && accessRepository.getIDs().contains(tblUser.getTbl_access_access_class())){
+    public ResponseCodeEnums createNewUser(Tbl_user tblUser) {
+        boolean isLoginExists = isLoginExists(tblUser.getLogin());
+        boolean isAccessClassExists = accessRepository.getIDs().contains(tblUser.getTbl_access_access_class());
+
+        if (!isLoginExists && isAccessClassExists){
             userRepository.createUser(tblUser.getLogin(),
                     hashPw(tblUser.getPassword()),
                     tblUser.getTbl_access_access_class());
-            return 0;
-        } else if (isLoginExists(tblUser.getLogin())) {
-            return 2;
+            return ResponseCodeEnums.SUCCESS_CREATED;
+        } else if (isLoginExists) {
+            return ResponseCodeEnums.CONFLICT_ID_EXISTS;
         }
-        return 1;
+        return ResponseCodeEnums.FAILED_CREATION;
     }
 
-    public int login(String login, String rawPW){
+    public ResponseCodeEnums login(String login, String rawPW){
         if (isLoginExists(login)) {
             if (!userRepository.getIsBlocked(login)) {
                 if (matchPW(rawPW, userRepository.getPW(login))) {
-                    return 0; // 0 = success
+                    return ResponseCodeEnums.SUCCESS_LOGIN; // 0 = success
                 } else {
                     int num = userRepository.getUnsucLogs(login) + 1;
                     userRepository.increaseUnsucLogs(login, num);
                     if (num >= 5){
                         userRepository.getBlocked(login);
                     }
-                    return 2; // 2 = wrong login or PW (here wrong PW)
+                    return ResponseCodeEnums.FAILED_LOGIN; // 2 = wrong login or PW (here wrong PW)
                 }
             } else {
-                return 3; // 3 = user blocked
+                return ResponseCodeEnums.BLOCKED; // 3 = user blocked
             }
         } else if(!isLoginExists(login)){
-            return 2; //2 = wrong login or PW (here non-existing email)
+            return ResponseCodeEnums.FAILED_LOGIN; //2 = wrong login or PW (here non-existing email)
         }
-        return 1; //3 = error within method
+        return ResponseCodeEnums.METHOD_ERROR; //3 = error within method
     }
 
     public boolean isLoginExists(String login){
@@ -65,55 +69,56 @@ public class UserService {
         return false;
     }
 
-    public int modifyUser(Tbl_user tblUser, String login) {
+    public ResponseCodeEnums modifyUser(Tbl_user tblUser, String login) {
         boolean newLoginExists = isLoginExists(tblUser.getLogin());
         boolean currentLoginExists = isLoginExists(login);
+        boolean loginsEqual = Objects.equals(tblUser.getLogin(), login);
 
-        if (!Objects.equals(tblUser.getLogin(), login)) {
+        if (!loginsEqual) {
             if (currentLoginExists && !newLoginExists) {
                 userRepository.modifyUserLogin(tblUser.getLogin(), tblUser.getTbl_access_access_class(), login);
-                return 0;
+                return ResponseCodeEnums.SUCCESS_MODIFIED;
             } else {
-                return 2;
+                return ResponseCodeEnums.FAILED_MODIFICATION;
             }
         } else {
             if (currentLoginExists) {
                 userRepository.modifyUserNoLogin(login, tblUser.getTbl_access_access_class());
-                return 0;
+                return ResponseCodeEnums.SUCCESS_MODIFIED;
             } else {
-                return 2;
+                return ResponseCodeEnums.FAILED_MODIFICATION;
             }
         }
     }
 
-    public int changePW(String login, String rawPW) {
+    public ResponseCodeEnums changePW(String login, String rawPW) {
         if (isLoginExists(login)) {
             userRepository.changePW(login, hashPw(rawPW));
-            return 0;
+            return ResponseCodeEnums.SUCCESS_MODIFIED;
         } else if(!isLoginExists(login)){
-            return 2;
+            return ResponseCodeEnums.FAILED_MODIFICATION;
         }
-        return 1;
+        return ResponseCodeEnums.METHOD_ERROR;
     }
 
-    public int removeUser(String login) {
-        if (isLoginExists(login)) {
+    public ResponseCodeEnums removeUser(String login) {
+        boolean isLoginExists = isLoginExists(login);
+        if (isLoginExists) {
             userRepository.removeUser(login);
-            return 0;
-        } else if(!isLoginExists(login)){
-            return 2;
+            return ResponseCodeEnums.SUCCESS_REMOVED;
+        } else {
+            return ResponseCodeEnums.FAILED_REMOVAL;
         }
-        return 1;
     }
 
-    public int unblockUser(String login) {
-        if (isLoginExists(login)) {
+    public ResponseCodeEnums unblockUser(String login) {
+        boolean isLoginExists = isLoginExists(login);
+        if (isLoginExists) {
             userRepository.getUnBlocked(login);
-            return 0;
-        } else if(!isLoginExists(login)){
-            return 2;
+            return ResponseCodeEnums.SUCCESS_MODIFIED;
+        } else {
+            return ResponseCodeEnums.FAILED_MODIFICATION;
         }
-        return 1;
     }
 
     public Tbl_user getUser(String login) {

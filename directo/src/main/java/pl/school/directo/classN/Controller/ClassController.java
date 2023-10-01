@@ -5,10 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.school.directo.classN.Model.Tbl_class;
 import pl.school.directo.classN.Service.ClassService;
+import pl.school.directo.common.Enums.ResponseCodeEnums;
+import pl.school.directo.common.Utils.ResponseUtils;
 
 import java.util.List;
 
-import static pl.school.directo.common.ValidateUtils.areAnyFieldsNull;
+import static pl.school.directo.common.Enums.ResponseCodeEnums.*;
+import static pl.school.directo.common.Utils.ValidateUtils.areAnyFieldsNull;
 
 @RestController
 @RequestMapping("/classController")
@@ -21,50 +24,35 @@ public class ClassController {
     }
 
     @PostMapping("/createClass")
-    public ResponseEntity<Integer> createUser(@RequestBody Tbl_class tbl_class) {
+    public ResponseEntity<String> createClass(@RequestBody Tbl_class tbl_class) {
         try {
             if (areAnyFieldsNull(tbl_class)) {
-                int num = classService.createNewClass(tbl_class);
-                if (num == 0) {
-                    return ResponseEntity.status(HttpStatus.CREATED).body(0); // 0 means success(inserted into db)
-                } else if (num == 2) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(2); // 2 means login already exists
-                }
+                ResponseCodeEnums result = classService.createNewClass(tbl_class);
+                return ResponseUtils.generateResponseEntity(result);
             }
         } catch (IllegalAccessException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1); //  1 means that there is an error(not inserted to db)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(FAILED_CREATION.name()); //  1 means that there is an error(not inserted to db)
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(FAILED_CREATION.name());
     }
 
     @PutMapping("/modifyClass/{newName}")
-    ResponseEntity<Integer> modifyClass(@RequestBody Tbl_class tbl_class, @PathVariable String newName){
+    ResponseEntity<String> modifyClass(@RequestBody Tbl_class tbl_class, @PathVariable String newName){
         try {
             if (areAnyFieldsNull(tbl_class)) {
-                int num = classService.modifyClass(tbl_class, newName);
-                if (num == 0) { // 0 means success(change in db)
-                    return ResponseEntity.status(HttpStatus.OK).body(0);
-                } else if (num == 2) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(2); //  2 means that ID doesn't exist(not inserted into db)
-                }
+                ResponseCodeEnums result  = classService.modifyClass(tbl_class, newName);
+                return ResponseUtils.generateResponseEntity(result);
             }
         }catch (IllegalAccessException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1); //  1 means that there is an error(not inserted into db)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(FAILED_MODIFICATION.name()); //  1 means that there is an error(not inserted into db)
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(FAILED_MODIFICATION.name());
     }
 
     @DeleteMapping("/removeClass/{className}")
-    public ResponseEntity<Integer> removeClass(@PathVariable String className){
-        if (className != null){
-            int num = classService.removeClass(className);
-            if (num == 0) {
-                return ResponseEntity.status(HttpStatus.OK).body(0);
-            } else if (num == 2) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(2);
-            }
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(1);
+    public ResponseEntity<String> removeClass(@PathVariable String className){
+        ResponseCodeEnums result = classService.removeClass(className);
+        return ResponseUtils.generateResponseEntity(result);
     }
 
     @GetMapping("/GetClass")
@@ -73,19 +61,14 @@ public class ClassController {
         return ResponseEntity.status(HttpStatus.OK).body(list);
     }
 
-/*
-    I don't need that prob
-
     @GetMapping("/GetClass/{className}")
-    public ResponseEntity<String> getClassesByName(@PathVariable String className){
-        if (className != null){
-            String classN = classService.getClassN(className);
-            if (classN != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(classN)
-            }
+    public ResponseEntity<String> getClassesByName(@PathVariable String className) {
+        if (className != null) {
+            String cn = classService.getClassById(className);
+            return ResponseEntity.status(HttpStatus.OK).body(cn);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(VALIDATION_ERROR.name());
         }
     }
-
- */
 }
 

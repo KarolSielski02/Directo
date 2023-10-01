@@ -2,7 +2,7 @@ package pl.school.directo.stdnt.Service;
 
 import org.springframework.stereotype.Service;
 import pl.school.directo.classN.Repository.ClassRepository;
-import pl.school.directo.common.ResponseCode;
+import pl.school.directo.common.Enums.ResponseCodeEnums;
 import pl.school.directo.stdnt.Model.Tbl_stdnt;
 import pl.school.directo.stdnt.Repository.StdntRepository;
 
@@ -22,17 +22,17 @@ public class StdntService {
         this.classRepository = classRepository;
     }
 
-    public ResponseCode createNewStdnt(Tbl_stdnt tblStdnt) {
+    public ResponseCodeEnums createNewStdnt(Tbl_stdnt tblStdnt) {
         boolean peselExists = isPeselExists(tblStdnt.getPesel());
         boolean classNameExists = classRepository.getClasses().contains(tblStdnt.getClassName());
 
-        if (!peselExists && classNameExists){
+        if (!peselExists && classNameExists && (tblStdnt.getPesel().length() < 12)){
             stdntRepository.createStdnt(tblStdnt.getPesel(), tblStdnt.getClassName());
-            return ResponseCode.SUCCESS_CREATED;
+            return ResponseCodeEnums.SUCCESS_CREATED;
         } else if (peselExists) {
-            return ResponseCode.CONFLICT_ID_EXISTS;
+            return ResponseCodeEnums.CONFLICT_ID_EXISTS;
         }
-        return ResponseCode.FAILED_CREATION;
+        return ResponseCodeEnums.FAILED_CREATION;
     }
 
 
@@ -40,6 +40,7 @@ public class StdntService {
     public boolean isPeselExists(String pesel){
         List<String> stringList = stdntRepository.getStdnts();
         for (String peselObj: stringList){
+            System.out.println("UwU");
             if (Objects.equals(peselObj, pesel)){
                 return true;
             }
@@ -47,34 +48,47 @@ public class StdntService {
         return false;
     }
 
-    public int modifyStdnt(Tbl_stdnt tblStdnt, String pesel) {
+    public ResponseCodeEnums modifyStdnt(Tbl_stdnt tblStdnt, String pesel) {
         boolean newPeselExists = isPeselExists(tblStdnt.getPesel());
         boolean currentPeselExists = isPeselExists(pesel);
 
         if (!Objects.equals(tblStdnt.getPesel(), pesel)) {
-            if (currentPeselExists && !newPeselExists) {
+            if (currentPeselExists && !newPeselExists && (tblStdnt.getPesel().length() < 12)) {
                 stdntRepository.modifyStdnt(tblStdnt.getPesel(), tblStdnt.getClassName(), pesel);
-                return 0;
+                return ResponseCodeEnums.SUCCESS_MODIFIED;
             } else  {
-                return 2;
+                return ResponseCodeEnums.FAILED_MODIFICATION;
             }
         } else {
             if (currentPeselExists) {
                 stdntRepository.modifyStdntNoPesel(pesel, tblStdnt.getClassName());
-                return 0;
+                return ResponseCodeEnums.CONFLICT_ID_EXISTS_MODIFICATION;
             } else{
-                return 2;
+                return ResponseCodeEnums.FAILED_MODIFICATION;
             }
         }
     }
 
-    public int removeStdnt(String pesel) {
-        if (isPeselExists(pesel)) {
+    public ResponseCodeEnums removeStdnt(String pesel) {
+        boolean isPeselExists = isPeselExists(pesel);
+        if (isPeselExists) {
             stdntRepository.removeStdnt(pesel);
-            return 0;
-        } else if(!isPeselExists(pesel)){
-            return 2;
+            return ResponseCodeEnums.SUCCESS_REMOVED;
+        } else {
+            return ResponseCodeEnums.OBJ_NOT_FOUND;
         }
-        return 1;
     }
+
+    public List<String> getStdnts() {
+        return stdntRepository.getStdnts();
+    }
+
+    public String getStdntByPesel(String pesel) {
+        if (isPeselExists(pesel)) {
+            return stdntRepository.getStdntByPesel(pesel);
+        } else{
+            return ResponseCodeEnums.OBJ_NOT_FOUND.name();
+        }
+    }
+
 }

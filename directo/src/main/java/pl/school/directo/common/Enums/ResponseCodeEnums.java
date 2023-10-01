@@ -1,6 +1,6 @@
-package pl.school.directo.common;
+package pl.school.directo.common.Enums;
 
-public enum ResponseCode {
+public enum ResponseCodeEnums {
     SUCCESS_CREATED,
     CONFLICT_ID_EXISTS,
     VALIDATION_ERROR,
@@ -10,6 +10,10 @@ public enum ResponseCode {
     SUCCESS_REMOVED,
     OBJ_NOT_FOUND,
     FAILED_CREATION,
-    FAILED_REMOVAL
+    FAILED_REMOVAL,
+    SUCCESS_LOGIN,
+    FAILED_LOGIN,
+    METHOD_ERROR,
+    BLOCKED
 
 }

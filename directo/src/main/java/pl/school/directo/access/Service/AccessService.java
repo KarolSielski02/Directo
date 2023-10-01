@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.springframework.stereotype.Service;
 import pl.school.directo.access.Model.Tbl_access;
 import pl.school.directo.access.Repository.AccessRepository;
+import pl.school.directo.common.Enums.ResponseCodeEnums;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,8 +33,9 @@ public class AccessService {
 
 
 
-    public int createNewAccessClass (Tbl_access tblAccess){
-        if (!isIdExists(tblAccess.getAccess_class())) {
+    public ResponseCodeEnums createNewAccessClass (Tbl_access tblAccess){
+        boolean isIdExists = isIdExists(tblAccess.getAccess_class());
+        if (!isIdExists) {
             accessRepository.addAccessClass(tblAccess.getAccess_class(),
                     tblAccess.getCan_crud_users(),
                     tblAccess.getCan_add_students(),
@@ -41,14 +43,13 @@ public class AccessService {
                     tblAccess.getCan_export_to_pdf(),
                     tblAccess.getCan_clear_grades(),
                     tblAccess.getCan_modify_access_class());
-            return 0;
-        }else if (isIdExists(tblAccess.getAccess_class())){
-            return 2;
+            return ResponseCodeEnums.SUCCESS_CREATED;
+        }else {
+            return ResponseCodeEnums.FAILED_CREATION;
         }
-        return 1;
     }
 
-    public int modifyAccessClass(Tbl_access tblAccess, String id) {
+    public ResponseCodeEnums modifyAccessClass(Tbl_access tblAccess, String id) {
         if (!Objects.equals(tblAccess.getAccess_class(), id)){
             if (isIdExists(id) && !isIdExists(tblAccess.getAccess_class())){
                 accessRepository.modifyAccessClassId(tblAccess.getAccess_class(),
@@ -59,9 +60,9 @@ public class AccessService {
                         tblAccess.getCan_clear_grades(),
                         tblAccess.getCan_modify_access_class(),
                         id);
-                return 0;
+                return ResponseCodeEnums.SUCCESS_MODIFIED;
             }else if (!isIdExists(id)){
-                return 2;
+                return ResponseCodeEnums.FAILED_MODIFICATION;
             }
         }else {
             if (isIdExists(id)){
@@ -73,22 +74,22 @@ public class AccessService {
                         tblAccess.getCan_clear_grades(),
                         tblAccess.getCan_modify_access_class(),
                         id);
-                return 0;
+                return ResponseCodeEnums.SUCCESS_MODIFIED;
             }else if (!isIdExists(id)){
-                return 2;
+                return ResponseCodeEnums.FAILED_MODIFICATION;
             }
         }
-        return 1;
+        return ResponseCodeEnums.METHOD_ERROR;
     }
 
-    public int removeAccessClass(String id) {
-        if (isIdExists(id)){
+    public ResponseCodeEnums removeAccessClass(String id) {
+        boolean isIdExists = isIdExists(id);
+        if (isIdExists){
             accessRepository.removeAccessClass(id);
-            return 0;
-        }else if (!isIdExists(id)){
-            return 2;
+            return ResponseCodeEnums.SUCCESS_REMOVED;
+        }else {
+            return ResponseCodeEnums.FAILED_REMOVAL;
         }
-        return 1;
     }
 
     public boolean isIdExists(String accessID){
