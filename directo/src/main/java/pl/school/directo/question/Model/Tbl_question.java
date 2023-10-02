@@ -6,10 +6,10 @@ import jakarta.persistence.*;
 public class Tbl_question {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "category")
+    @Column(name = "tbl_category_id")
     private int category;
     @Column(name = "question")
     private int question;

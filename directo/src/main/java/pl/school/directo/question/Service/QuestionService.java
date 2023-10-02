@@ -1,8 +1,6 @@
 package pl.school.directo.question.Service;
 
 import org.springframework.stereotype.Service;
-import pl.school.directo.common.Enums.ResponseCodeEnums;
-import pl.school.directo.question.Model.Tbl_question;
 import pl.school.directo.question.Repository.QuestionRepository;
 
 @Service
@@ -14,7 +12,7 @@ public class QuestionService {
         this.questionRepository = questionRepository;
     }
 
-    public ResponseCodeEnums createQuestion(Tbl_question tblQuestion) {
-    boolean questionExists = isQuestionExists(tblQuestion.getQuestion(), tblQuestion.getCategory());
-    }
+//    public ResponseCodeEnums createQuestion(Tbl_question tblQuestion) {
+//    boolean questionExists = isQuestionExists(tblQuestion.getQuestion(), tblQuestion.getCategory());
+//    }
 }
